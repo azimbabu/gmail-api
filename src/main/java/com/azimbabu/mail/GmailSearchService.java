@@ -39,8 +39,9 @@ import java.util.stream.Collectors;
  */
 public class GmailSearchService<T> implements MailSearchService<T> {
 
-    public static final char MULTIPART_JOINER = '\n';
     private static Logger logger = LoggerFactory.getLogger(GmailSearchService.class);
+
+    private static final char MULTIPART_JOINER = '\n';
 
     private static final String USER_ID = "me";
 
@@ -118,7 +119,7 @@ public class GmailSearchService<T> implements MailSearchService<T> {
 
 
     private Gmail getGmailService() throws IOException {
-        Credential credential = authorize();
+        final Credential credential = authorize();
         return new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
@@ -180,17 +181,20 @@ public class GmailSearchService<T> implements MailSearchService<T> {
             }
 
             if (fullMessage.getPayload() != null && fullMessage.getPayload().getParts() != null){
-                final List<String> parts = fullMessage.getPayload().getParts()
-                        .stream()
-                        .map(part -> new String(part.getBody().decodeData()))
-                        .collect(Collectors.toList());
-                return StringUtils.join(parts, MULTIPART_JOINER);
-
+                return parseMultiPartBody(fullMessage);
             } else {
                 return new String(Base64.getDecoder().decode(fullMessage.getRaw()));
             }
         } catch (final IOException ex) {
             throw new UncheckedIOException(ex);
         }
+    }
+
+    private String parseMultiPartBody(final Message fullMessage) {
+        final List<String> parts = fullMessage.getPayload().getParts()
+                .stream()
+                .map(part -> new String(part.getBody().decodeData()))
+                .collect(Collectors.toList());
+        return StringUtils.join(parts, MULTIPART_JOINER);
     }
 }
