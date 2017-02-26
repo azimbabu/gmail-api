@@ -21,7 +21,7 @@ i.e. the implementation should accept a list of String representing a list of em
  - Click the file_download (Download JSON) button to the right of the client ID.
  - Move this file to src/main/resources directory and rename it client_secret.json.
  
- ### Write your own Parser
+### Write your own Parser
  
  An example parser is included src/main/java/GithubPullRequestParser.java and it's usage is demonstrated in src/main/java/MailSearchDemo.java
 ```
